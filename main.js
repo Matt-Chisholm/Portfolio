@@ -48,7 +48,7 @@ renderer.setPixelRatio(devicePixelRatio);
 document.body.appendChild(renderer.domElement);
 
 const geometry = new THREE.PlaneGeometry(7, 7, 10, 10);
-const material = new THREE.MeshPhongMaterial({ color: 0xFF8855, side: THREE.DoubleSide, flatShading: THREE.FlatShading });
+const material = new THREE.MeshPhongMaterial({ side: THREE.DoubleSide, flatShading: THREE.FlatShading, vertexColors: true });
 const planeMesh = new THREE.Mesh(geometry, material);
 
 scene.add(planeMesh);
@@ -69,6 +69,13 @@ for (let i = 0; i < array.length; i += 3) {
   array[i + 2] = z + Math.random();
 }
 
+const colors = [];
+for (let i = 0; i < planeMesh.geometry.attributes.position.count; i++) {
+  colors.push(0, 0, 1);
+};
+
+planeMesh.geometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(colors), 3));
+
 const mouse = {
   x: undefined,
   y: undefined
@@ -77,11 +84,15 @@ const mouse = {
 function animate() {
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
-  
+
   raycaster.setFromCamera(mouse, camera);
   const intersects = raycaster.intersectObject(planeMesh);
   if (intersects.length > 0) {
-    console.log('intersecting');
+    console.log(intersects[0].object.geometry);
+    intersects[0].object.geometry.attributes.color.setX(intersects[0].face.a, 1);
+    intersects[0].object.geometry.attributes.color.setX(intersects[0].face.b, 1);
+    intersects[0].object.geometry.attributes.color.setX(intersects[0].face.c, 1);
+    intersects[0].object.geometry.attributes.color.needsUpdate = true;
   }
 };
 
@@ -92,6 +103,6 @@ animate();
 
 
 addEventListener('mousemove', (event) => {
-   mouse.x = (event.clientX / innerWidth) * 2 - 1;
-   mouse.y = -(event.clientX / innerHeight) * 2 + 1;
+  mouse.x = (event.clientX / innerWidth) * 2 - 1;
+  mouse.y = -(event.clientX / innerHeight) * 2 + 1;
 })
