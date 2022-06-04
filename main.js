@@ -79,3 +79,8 @@ function animate() {
 
 
 animate();
+
+addEventListener('mousemove', (event) => {
+  console.log(event);
+  console.log('move');
+})
